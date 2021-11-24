@@ -41,19 +41,22 @@ def handleFanSpeed(fan, old_speed, temperature):
     return speed
 
 
-try:
-    signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
-    GPIO.setwarnings(False)
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(FAN_PIN, GPIO.OUT, initial=GPIO.LOW)
-    fan = GPIO.PWM(FAN_PIN, PWM_FREQ)
-    speed = None
-    while True:
-        speed = handleFanSpeed(fan, speed, getCpuTemperature())
-        time.sleep(WAIT_TIME)
+def main():
+    try:
+        signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(FAN_PIN, GPIO.OUT, initial=GPIO.LOW)
+        fan = GPIO.PWM(FAN_PIN, PWM_FREQ)
+        speed = None
+        while True:
+            speed = handleFanSpeed(fan, speed, getCpuTemperature())
+            time.sleep(WAIT_TIME)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        GPIO.cleanup()
 
-except KeyboardInterrupt:
-    pass
 
-finally:
-    GPIO.cleanup()
+if __name__ == '__main__':
+    main()
