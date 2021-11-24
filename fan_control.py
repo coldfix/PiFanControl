@@ -36,6 +36,8 @@ def handleFanSpeed(fan, old_speed, temperature):
 
     if speed != old_speed:
         fan.start(speed)
+        print("temp={:.1f}°C => fan-speed={}%".format(temperature, speed))
+
     return speed
 
 
