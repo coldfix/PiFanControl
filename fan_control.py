@@ -23,13 +23,20 @@ def getCpuTemperature():
         return float(f.read()) / 1000
 
 
-def handleFanSpeed(fan, temperature):
+def handleFanSpeed(fan, old_speed, temperature):
     if temperature > MIN_TEMP:
         delta = min(temperature, MAX_TEMP) - MIN_TEMP
-        fan.start(FAN_LOW + delta * FAN_GAIN)
+        speed = round(FAN_LOW + delta * FAN_GAIN)
 
     elif temperature < OFF_TEMP:
-        fan.start(FAN_OFF)
+        speed = FAN_OFF
+
+    else:
+        speed = old_speed
+
+    if speed != old_speed:
+        fan.start(speed)
+    return speed
 
 
 try:
@@ -38,8 +45,9 @@ try:
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(FAN_PIN, GPIO.OUT, initial=GPIO.LOW)
     fan = GPIO.PWM(FAN_PIN, PWM_FREQ)
+    speed = None
     while True:
-        handleFanSpeed(fan, getCpuTemperature())
+        speed = handleFanSpeed(fan, speed, getCpuTemperature())
         time.sleep(WAIT_TIME)
 
 except KeyboardInterrupt:
